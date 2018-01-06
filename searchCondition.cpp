@@ -10,6 +10,8 @@ using namespace std;
 #include "Schema.h"
 
 string switchDelimiter(string delimiter) {
+    /* Return the next delimiter based on the priority. The priority of
+     * operations is : OR, AND, <, >, =, +, -, * */
     char delim;
     if (delimiter == "OR") {
         delim = '|';
@@ -40,7 +42,11 @@ string switchDelimiter(string delimiter) {
 }
 
 void recursiveSplit(node *parent, vector<string> const &tokens, string delimiter) {
+    /* Given a string, parse it into an expression tree with nodes as the
+     * operators and the children as the operands */
     if (tokens.size() == 1) {
+        /* Base case for the recursion, the leaf nodes are either strings or
+         * integers */
         node *mathNode;
         mathNode = new node(tokens[0]);
         parent->subTree.push_back(mathNode);
@@ -53,13 +59,16 @@ void recursiveSplit(node *parent, vector<string> const &tokens, string delimiter
             }
         }
         if (it != tokens.end()) {
-            // delimiter was found
+            /* Case 1 :delimiter was found */
             node *delimNode;
             delimNode = new node(delimiter);
             parent->subTree.push_back(delimNode);
             vector<string> leftTokens(tokens.begin(), it), rightTokens(it+1, tokens.end());
             string newDelimiter = switchDelimiter(delimiter);
             recursiveSplit(delimNode, leftTokens, newDelimiter);
+            /* In rightTokens, we still need to search for the current
+             * delimiter since we may have multiple instances of the delimiter
+             * */
             recursiveSplit(delimNode, rightTokens, delimiter);
         } else {
             // delimiter is not found
